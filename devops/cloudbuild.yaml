@@ -11,12 +11,11 @@
   - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
     entrypoint: gcloud
     args:
-    - 'functions'
+    - 'run'
     - 'deploy'
-    - 'contracting-hours-interface'
-    - --region='us-central1'
-    - --trigger-http
-    - --runtime=python311
+    - 'contract-emails-automation'
+    - '--image'
+    - 'gcr.io/ian-dev-444015/smtp-auto:$COMMIT_SHA'
     - '--region'
     - 'us-central1'
   
