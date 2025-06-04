@@ -12,7 +12,7 @@
     entrypoint: gcloud
     args:
     - 'run'
-    - 'deploy'
+    - 'jobs'
     - 'contract-emails-automation'
     - '--image'
     - 'gcr.io/ian-dev-444015/smtp-auto:$COMMIT_SHA'
