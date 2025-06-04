@@ -1,0 +1,30 @@
+  steps:
+  # Build the container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', 'gcr.io/ian-dev-444015/smtp-auto:$COMMIT_SHA', '-f', 'deploy/Dockerfile', '.']
+  
+  # Push the container image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/ian-dev-444015/smtp-auto:$COMMIT_SHA']
+  
+  # Deploy container image to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+    - 'functions'
+    - 'deploy'
+    - 'contracting-hours-interface'
+    - --region='us-central1'
+    - --source=.
+    - --trigger-http
+    - --runtime=python311
+    - '--image'
+    - 'gcr.io/ian-dev-444015/smtp-auto:$COMMIT_SHA'
+    - '--region'
+    - 'us-central1'
+  
+  images:
+  - 'gcr.io/ian-dev-444015/smtp-auto:$COMMIT_SHA'
+  
+  options:
+    logging: CLOUD_LOGGING_ONLY
