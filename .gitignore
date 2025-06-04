@@ -1,0 +1,6 @@
+*.ipynb*
+service_accounts/
+*.env*
+*.pyc
+
+FERGUSON*.csv

@@ -1,0 +1,9 @@
+services:
+  email-bot:
+    build:
+      context: .
+      dockerfile: ./devops/Dockerfile
+    env_file:
+      - dev.env
+    volumes:
+      - .:/app
