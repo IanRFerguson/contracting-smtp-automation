@@ -15,7 +15,6 @@
     - 'deploy'
     - 'contracting-hours-interface'
     - --region='us-central1'
-    - --source='gcr.io/ian-dev-444015/smtp-auto:$COMMIT_SHA'
     - --trigger-http
     - --runtime=python311
     - '--region'
