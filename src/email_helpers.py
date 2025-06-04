@@ -13,7 +13,7 @@ def generate_html_body(
     body = f"""
     Hi {addressee_first_name},
     <br><br>
-    I hope you're well! Please see attached for my {client_name} hours for the last {days_back} days.
+    I hope you're well! Please see attached for my {client_name} hours from the last {days_back} days.
     <br><br>
     If you have any questions or concerns please <a href='mailto:IANFERGUSONRVA@gmail.com'>contact me at my monitored inbox</a>.
     <br><br>
