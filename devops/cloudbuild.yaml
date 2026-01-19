@@ -1,14 +1,25 @@
   steps:
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/ian-dev-444015/smtp-auto-v2:$COMMIT_SHA', '-f', 'devops/Dockerfile', '.']
+    args: 
+      - 'build'
+      - '-t'
+      - 'gcr.io/ian-dev-444015/smtp-auto-v2:$COMMIT_SHA'
+      - '-t'
+      - 'gcr.io/ian-dev-444015/smtp-auto-v2:latest'
+      - '-f'
+      - 'devops/Dockerfile'
+      - '.'
   
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
     args: ['push', 'gcr.io/ian-dev-444015/smtp-auto-v2:$COMMIT_SHA']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/ian-dev-444015/smtp-auto-v2:latest']
   
   images:
   - 'gcr.io/ian-dev-444015/smtp-auto-v2:$COMMIT_SHA'
+  - 'gcr.io/ian-dev-444015/smtp-auto-v2:latest'
   
   options:
     logging: CLOUD_LOGGING_ONLY
