@@ -8,9 +8,9 @@ from asset_helpers import build_attachments
 from email_helpers import send_email
 from utilities import (
     get_contracting_hours,
+    get_data_for_environment,
     logger,
     write_assets_to_gcs,
-    get_data_for_environment,
 )
 
 #####
@@ -100,8 +100,8 @@ def main(days_back: int, from_address: str, bucket_name: str) -> None:
         assets_directory = build_attachments(
             df=hours_this_week,
             days_back=days_back,
-            **GLOBAL_MAP,
-            **CONSULTANT_MAP[client_name],
+            global_map=GLOBAL_MAP,
+            client_map=CONSULTANT_MAP[client_name],
         )
 
         # Email our contact

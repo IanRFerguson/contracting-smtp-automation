@@ -1,22 +1,19 @@
-import os
 import json
+import os
 import shutil
 from datetime import datetime, timedelta
-from typing import Union, Tuple
+from typing import Tuple, Union
 
 import pytz
 from google.cloud import bigquery, storage
 from pandas import DataFrame
 
 from color_logger import logger
-from config import CONSULTANT_MAP, GLOBAL_MAP
 
 #####
 
 
-def format_attachment_name(
-    days_back: int, client_name: str, assets_directory: str, suffix: str = ".zip"
-) -> str:
+def format_attachment_name(days_back: int, client_name: str, assets_directory: str, suffix: str = ".zip") -> str:
     """
     Creates a zip file from the assets directory with a standardized naming convention
     and returns the path to the created zip file.
@@ -36,9 +33,7 @@ def format_attachment_name(
     _today = datetime.now(pytz.timezone("America/New_York"))
     _preceding_boundary = _today - timedelta(days=days_back)
 
-    _date_formatted = (
-        f"{_preceding_boundary.strftime('%Y-%m-%d')}__{_today.strftime('%Y-%m-%d')}"
-    )
+    _date_formatted = f"{_preceding_boundary.strftime('%Y-%m-%d')}__{_today.strftime('%Y-%m-%d')}"
 
     base_filename = f"FERGUSON_{client_name.upper().strip().replace(' ', '_')}_hours__{_date_formatted}"
 
@@ -53,9 +48,7 @@ def format_attachment_name(
     return f"{output_base}{suffix}"
 
 
-def get_contracting_hours(
-    table_name: str, bq: bigquery.Client, days_back: int
-) -> Union[DataFrame, None]:
+def get_contracting_hours(table_name: str, bq: bigquery.Client, days_back: int) -> Union[DataFrame, None]:
     """
     Reads in data from BigQuery and filters out to the last week.
     If there are no records in the last 7 days we'll return `None` instead
@@ -63,15 +56,11 @@ def get_contracting_hours(
     """
 
     logger.debug(f"Reading hours from {table_name}...")
-    job = bq.query(
-        f"SELECT * FROM {table_name} WHERE DATE_DIFF(CURRENT_DATE(), CAST(Day as DATE), DAY) < {days_back}"
-    )
+    job = bq.query(f"SELECT * FROM {table_name} WHERE DATE_DIFF(CURRENT_DATE(), CAST(Day as DATE), DAY) < {days_back}")
     resp = [row.values() for row in job.result()]
     logger.debug(resp)
 
-    return DataFrame(
-        resp, columns=["Period", "Day", "Hours", "Category", "Accomplished"]
-    )
+    return DataFrame(resp, columns=["Period", "Day", "Hours", "Category", "Accomplished"])
 
 
 def write_assets_to_gcs(
@@ -134,4 +123,6 @@ def get_data_for_environment(
     # If we're running locally, we'll use the dev config
     # that isn't pushed to version control
     else:
+        from config import CONSULTANT_MAP, GLOBAL_MAP
+
         return CONSULTANT_MAP, GLOBAL_MAP

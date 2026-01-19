@@ -8,7 +8,6 @@ from pandas import DataFrame
 from weasyprint import HTML
 
 from color_logger import logger
-from config import GLOBAL_MAP
 
 #####
 
@@ -24,6 +23,7 @@ def templatize_html_to_pdf(
     billing_period: str,
     items: list[dict],
     hourly_rate: float,
+    global_map: dict,
     tax_rate: float = 0.0,
     payment_method: str = "Bank Transfer",
 ) -> str:
@@ -67,10 +67,10 @@ def templatize_html_to_pdf(
     # Prepare template context
     due_date = (TODAY + timedelta(days=30)).strftime("%b %d, %Y").upper()
     context = {
-        "company_name": GLOBAL_MAP["name"],
-        "address": f"{GLOBAL_MAP['address']}, {GLOBAL_MAP['city']}, {GLOBAL_MAP['state']} {GLOBAL_MAP['zip']}",
-        "phone": GLOBAL_MAP["phone"],
-        "email": GLOBAL_MAP["email"],
+        "company_name": global_map["name"],
+        "address": f"{global_map['address']}, {global_map['city']}, {global_map['state']} {global_map['zip']}",
+        "phone": global_map["phone"],
+        "email": global_map["email"],
         "invoice_no": invoice_no,
         "hourly_rate": hourly_rate,
         "date": TODAY.strftime("%b %d, %Y").upper(),
@@ -96,7 +96,9 @@ def templatize_html_to_pdf(
     return output_path
 
 
-def build_attachments(df: DataFrame, days_back: int, **kwargs) -> str:
+def build_attachments(
+    df: DataFrame, days_back: int, global_map: dict, client_map: dict
+) -> str:
     """
     Given a Pandas DataFrame, build the email attachments and return
     the directory where they are stored.
@@ -104,6 +106,8 @@ def build_attachments(df: DataFrame, days_back: int, **kwargs) -> str:
     Args:
         df (DataFrame): Pandas DataFrame containing contracting hours.
         days_back (int): Number of days back to include in the billing period.
+        global_map (dict): Global configuration map with company details.
+        client_map (dict): Client-specific configuration map with client details.
 
     Returns:
         str: Directory path where attachments are stored.
@@ -124,11 +128,12 @@ def build_attachments(df: DataFrame, days_back: int, **kwargs) -> str:
     templatize_html_to_pdf(
         output_path=f"{output_dir}/invoice.pdf",
         invoice_no=f"INV-{TODAY.strftime('%Y%m%d')}-{uuid4().hex[:6].upper()}",
-        client_name=kwargs["billed_to"],
+        client_name=client_map["billed_to"],
         billing_period=f"{billing_period_start} to {billing_period_end}",
         items=df.to_dict(orient="records"),
-        hourly_rate=kwargs["hourly_rate"],
-        payment_method=kwargs.get("payment_method", "Bank Transfer"),
+        hourly_rate=client_map["hourly_rate"],
+        payment_method=client_map.get("payment_method", "Bank Transfer"),
+        global_map=global_map,
     )
 
     return output_dir

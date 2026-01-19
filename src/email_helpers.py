@@ -10,9 +10,7 @@ from utilities import format_attachment_name, logger
 ##########
 
 
-def generate_email_body(
-    addressee_first_name: str, client_name: str, days_back: int
-) -> str:
+def generate_email_body(addressee_first_name: str, client_name: str, days_back: int) -> str:
     """
     Generates the HTML body for the email.
 
@@ -70,9 +68,7 @@ def generate_multipart_message(
     # Message metadata
     msg["From"] = sender_email
     msg["To"] = addressee_email
-    msg["Subject"] = (
-        f"[AUTOMATED] Ferguson x {client_name} Hours - {datetime.now().strftime('%B %d, %Y')}"
-    )
+    msg["Subject"] = f"[AUTOMATED] Ferguson x {client_name} Hours - {datetime.now().strftime('%B %d, %Y')}"
 
     # Create and attach email body
     body_text = MIMEText(
@@ -123,9 +119,7 @@ def send_email(
     """
 
     # Save file locally
-    zip_file = format_attachment_name(
-        days_back=days_back, client_name=client_name, assets_directory=assets_directory
-    )
+    zip_file = format_attachment_name(days_back=days_back, client_name=client_name, assets_directory=assets_directory)
 
     email_body = generate_multipart_message(
         sender_email=smtp_creds["user"],
@@ -146,9 +140,7 @@ def send_email(
             addressee_email = os.environ.get("TEST_EMAIL_INBOX")
 
             if not addressee_email:
-                raise ValueError(
-                    "TEST_EMAIL_INBOX environment variable must be set in non-production environments."
-                )
+                raise ValueError("TEST_EMAIL_INBOX environment variable must be set in non-production environments.")
 
         logger.debug(f"Sending to {addressee_first_name} @ {addressee_email}...")
         try:
