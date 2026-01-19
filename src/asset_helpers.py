@@ -115,9 +115,7 @@ def build_attachments(df: DataFrame, days_back: int, **kwargs) -> str:
     df.to_csv(f"{output_dir}/contracting_hours.csv")
 
     # Build invoice PDF
-    billing_period_start = (
-        (TODAY - timedelta(days=days_back)).strftime("%b %d, %Y").upper()
-    )
+    billing_period_start = (TODAY - timedelta(days=days_back)).strftime("%b %d, %Y").upper()
     billing_period_end = TODAY.strftime("%b %d, %Y").upper()
     templatize_html_to_pdf(
         output_path=f"{output_dir}/invoice.pdf",
