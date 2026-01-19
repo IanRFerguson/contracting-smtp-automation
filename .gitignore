@@ -2,5 +2,15 @@
 service_accounts/
 *.env*
 *.pyc
+.venv/
+**/*.egg-info
+build/
+dist/
 
 FERGUSON*.csv
+FERGUSON*.zip
+src/config.py
+**/temp_attachments_*
+
+**/.terraform*
+**/*.tfstate*

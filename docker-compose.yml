@@ -5,5 +5,7 @@ services:
       dockerfile: ./devops/Dockerfile
     env_file:
       - dev.env
+    environment:
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/service_accounts/ian-dev.json
     volumes:
       - .:/app
