@@ -73,7 +73,7 @@ def main(days_back: int, from_address: str, bucket_name: str) -> None:
         raise ValueError("GCS bucket name must be provided via --bucket-name or env var.")
 
     CONSULTANT_MAP, GLOBAL_MAP = get_data_for_environment(
-        is_prod_run=os.environ.get("ENVIRONMENT") == "production",
+        is_prod_run=os.environ.get("STAGE") == "production",
         storage_client=STORAGE_CLIENT,
         bucket_name=bucket_name,
     )
