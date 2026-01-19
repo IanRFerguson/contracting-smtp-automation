@@ -1,0 +1,101 @@
+body {
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    color: #333;
+    line-height: 1.4;
+    margin: 0;
+    padding: 0;
+}
+
+.invoice-container {
+    max-width: 800px;
+    margin: auto;
+    padding: 40px;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.company-info h1 {
+    font-size: 1.5rem;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.company-info p {
+    margin: 2px 0;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.invoice-title h1 {
+    font-size: 2.5rem;
+    margin: 0;
+    color: #000;
+    letter-spacing: 2px;
+}
+
+hr {
+    border: 0;
+    border-top: 1px solid #ccc;
+    margin: 20px 0;
+}
+
+.metadata {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 40px;
+}
+
+.meta-column p {
+    margin: 5px 0;
+    font-size: 0.95rem;
+}
+
+.items-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+
+.items-table th {
+    background-color: #f4f4f4;
+    text-align: left;
+    padding: 12px;
+    border-bottom: 2px solid #333;
+}
+
+.items-table td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.totals-container {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.totals-table {
+    width: 30%;
+}
+
+.totals-table td {
+    padding: 8px 0;
+}
+
+.total-row td {
+    border-top: 2px solid #333;
+    padding-top: 10px;
+}
+
+footer {
+    margin-top: 50px;
+    font-size: 0.9rem;
+}
