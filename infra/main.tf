@@ -34,6 +34,7 @@ resource "google_service_account" "automation_sa" {
   display_name = "Service Account for Contracting SMTP Automation"
 }
 
+// Define the necessary IAM roles for the service account
 resource "google_project_iam_member" "automation_sa_bigquery_access" {
   for_each = toset(local.sa_permissions)
   project  = var.project_id
@@ -46,4 +47,21 @@ resource "google_storage_bucket" "email_assets_bucket" {
   name                     = var.bucket_name
   location                 = "US"
   public_access_prevention = "enforced"
+}
+
+// This custom module sets up the Cloud Run job, Cloud Scheduler, and monitoring alerts
+// to notify us when the job succeeds or fails
+module "email_pipeline" {
+  source = "./modules/pipeline"
+
+  job_name              = "contracting-email-job"
+  cron_schedule         = "0 11 * * 5" // Every Friday at 11 AM
+  gcs_bucket_name       = google_storage_bucket.email_assets_bucket.name
+  smtp_username         = var.smtp_username
+  smtp_password         = var.smtp_password
+  image_name            = var.image_name
+  service_account_email = google_service_account.automation_sa.email
+  time_zone             = "America/New_York"
+  project_id            = var.project_id
+  alert_email           = var.alert_email
 }

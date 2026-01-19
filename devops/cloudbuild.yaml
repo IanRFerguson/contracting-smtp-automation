@@ -1,27 +1,14 @@
   steps:
   # Build the container image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/ian-dev-444015/smtp-auto:$COMMIT_SHA', '-f', 'devops/Dockerfile', '.']
+    args: ['build', '-t', 'gcr.io/ian-dev-444015/smtp-auto-v2:$COMMIT_SHA', '-f', 'devops/Dockerfile', '.']
   
   # Push the container image to Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/ian-dev-444015/smtp-auto:$COMMIT_SHA']
-  
-  # Deploy container image to Cloud Run
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
-    entrypoint: gcloud
-    args:
-    - 'run'
-    - 'jobs'
-    - 'create'
-    - 'contract-emails-automation'
-    - '--image'
-    - 'gcr.io/ian-dev-444015/smtp-auto:$COMMIT_SHA'
-    - '--region'
-    - 'us-central1'
+    args: ['push', 'gcr.io/ian-dev-444015/smtp-auto-v2:$COMMIT_SHA']
   
   images:
-  - 'gcr.io/ian-dev-444015/smtp-auto:$COMMIT_SHA'
+  - 'gcr.io/ian-dev-444015/smtp-auto-v2:$COMMIT_SHA'
   
   options:
     logging: CLOUD_LOGGING_ONLY

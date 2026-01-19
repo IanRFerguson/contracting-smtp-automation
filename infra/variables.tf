@@ -18,3 +18,25 @@ variable "smtp_password" {
   type        = string
   sensitive   = true
 }
+
+variable "cron_schedule" {
+  description = "Cron schedule for the Cloud Scheduler job"
+  type        = string
+  default     = "0 11 * * 5" # Every Friday at 11 AM
+}
+
+variable "time_zone" {
+  description = "Time zone for the schedule"
+  type        = string
+  default     = "America/New_York"
+}
+
+variable "image_name" {
+  description = "Container image name for the Cloud Run job"
+  type        = string
+}
+
+variable "alert_email" {
+  description = "Email address to receive alerts"
+  type        = string
+}
