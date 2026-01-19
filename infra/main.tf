@@ -7,7 +7,9 @@ locals {
   sa_permissions = [
     "bigquery.dataViewer",
     "bigquery.jobUser",
-    "storage.admin"
+    "storage.admin",
+    "logging.admin",
+    "run.admin"
   ]
   friday_at_11am = "0 11 * * 5"
   est_time_zone  = "America/New_York"
@@ -56,7 +58,7 @@ resource "google_storage_bucket" "email_assets_bucket" {
 module "email_pipeline" {
   source = "./modules/pipeline"
 
-  job_name              = "contracting-email-job"
+  job_name              = "contracting-email-job-v2"
   cron_schedule         = local.friday_at_11am // Every Friday at 11 AM
   gcs_bucket_name       = google_storage_bucket.email_assets_bucket.name
   smtp_username         = var.smtp_username
