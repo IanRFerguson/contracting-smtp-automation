@@ -14,21 +14,9 @@ variable "smtp_username" {
 }
 
 variable "smtp_password" {
-  description = "SMTP password for seding emails"
+  description = "SMTP password for sending emails"
   type        = string
   sensitive   = true
-}
-
-variable "cron_schedule" {
-  description = "Cron schedule for the Cloud Scheduler job"
-  type        = string
-  default     = "0 11 * * 5" # Every Friday at 11 AM
-}
-
-variable "time_zone" {
-  description = "Time zone for the schedule"
-  type        = string
-  default     = "America/New_York"
 }
 
 variable "image_name" {

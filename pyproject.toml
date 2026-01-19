@@ -4,12 +4,12 @@ version = "1.0"
 dependencies = [
     "pandas==2.2.3",
     "google-cloud-bigquery==3.19.0",
-    "google-cloud-logging",
-    "google-cloud-storage",
+    "google-cloud-logging==3.13.0",
+    "google-cloud-storage==3.8.0",
     "click==8.3.1",
-    "colorlog",
-    "jinja2",
-    "weasyprint",
+    "colorlog==6.10.1",
+    "jinja2==3.1.6",
+    "weasyprint==67.0",
 ]
 
 [tool.ruff]

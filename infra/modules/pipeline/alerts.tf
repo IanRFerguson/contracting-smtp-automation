@@ -7,9 +7,7 @@ resource "google_logging_metric" "scheduler_failure" {
     resource.type="cloud_scheduler_job"
     resource.labels.job_id="${var.job_name}-scheduler"
     resource.labels.location="${var.location}"
-    severity="ERROR"
-    OR
-    (protoPayload.status.code!=0 AND protoPayload.status.code!=NULL)
+    (severity="ERROR" OR (protoPayload.status.code!=0 AND protoPayload.status.code!=NULL))
   EOT
 
   metric_descriptor {
@@ -26,9 +24,7 @@ resource "google_logging_metric" "job_failure" {
     resource.type="cloud_run_job"
     resource.labels.job_name="${var.job_name}"
     resource.labels.location="${var.location}"
-    severity="ERROR"
-    OR
-    (jsonPayload.message=~".*failed.*" OR jsonPayload.message=~".*error.*")
+    (severity="ERROR" OR (jsonPayload.message=~".*failed.*" OR jsonPayload.message=~".*error.*"))
   EOT
 
   metric_descriptor {

@@ -52,4 +52,4 @@ def get_logger_by_environment(
     return scrub_logger
 
 
-logger = get_logger_by_environment(is_prod=os.environ.get("STAGE") == "prod")
+logger = get_logger_by_environment(is_prod=os.environ.get("STAGE") == "production")

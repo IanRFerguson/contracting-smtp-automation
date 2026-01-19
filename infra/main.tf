@@ -9,6 +9,8 @@ locals {
     "bigquery.jobUser",
     "storage.admin"
   ]
+  friday_at_11am = "0 11 * * 5"
+  est_time_zone  = "America/New_York"
 }
 
 terraform {
@@ -55,13 +57,13 @@ module "email_pipeline" {
   source = "./modules/pipeline"
 
   job_name              = "contracting-email-job"
-  cron_schedule         = "0 11 * * 5" // Every Friday at 11 AM
+  cron_schedule         = local.friday_at_11am // Every Friday at 11 AM
   gcs_bucket_name       = google_storage_bucket.email_assets_bucket.name
   smtp_username         = var.smtp_username
   smtp_password         = var.smtp_password
   image_name            = var.image_name
   service_account_email = google_service_account.automation_sa.email
-  time_zone             = "America/New_York"
+  time_zone             = local.est_time_zone
   project_id            = var.project_id
   alert_email           = var.alert_email
 }

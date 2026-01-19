@@ -60,16 +60,19 @@ def main(days_back: int, from_address: str, bucket_name: str) -> None:
     * Initializes BigQuery and SMTP clients.
     * Iterates over each consultant defined in the `CONSULTANT_MAP`.
     * Retrieves contracting hours from BigQuery for the specified number of days.
-    * If hours are found, generates a CSV attachment and composes an email.
+    * If hours are found, generates a CSV attachment and PDF invoice, zips them,  and composes an email.
     * Sends the email to the client's email address.
 
     Args:
         days_back (int): Number of days back to query for contracting hours.
         from_address (str): From address for outgoing emails.
+        bucket_name (str): GCS bucket name to upload email assets to.
     """
 
     if not bucket_name:
-        raise ValueError("GCS bucket name must be provided via --bucket-name or env var.")
+        raise ValueError(
+            "GCS bucket name must be provided via --bucket-name or env var."
+        )
 
     for client_name in CONSULTANT_MAP.keys():
         logger.info(f"* Processing client: {client_name}")
@@ -103,7 +106,9 @@ def main(days_back: int, from_address: str, bucket_name: str) -> None:
             smtp_creds=SMTP_CREDS,
             days_back=days_back,
             from_address=from_address,
-            addressee_first_name=CONSULTANT_MAP[client_name]["contact_name"].split(" ")[0],
+            addressee_first_name=CONSULTANT_MAP[client_name]["contact_name"].split(" ")[
+                0
+            ],
             addressee_email=CONSULTANT_MAP[client_name]["contact_email"],
             client_name=client_name,
         )

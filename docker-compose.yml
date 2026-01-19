@@ -7,6 +7,6 @@ services:
       - dev.env
     environment:
       - GOOGLE_APPLICATION_CREDENTIALS=/app/service_accounts/ian-dev.json
-      - DEBUG=true
+      - DEBUG=false
     volumes:
       - .:/app

@@ -9,7 +9,7 @@ automation:
 	@docker compose up --build;
 
 
-# Drop artfiacts from development (NOTE: should clean this up
+# Drop artifacts from development (NOTE: should clean this up
 # in the script eventually))
 clean:
 	@rm -r temp_attachments_* || true

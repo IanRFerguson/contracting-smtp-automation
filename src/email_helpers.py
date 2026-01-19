@@ -5,16 +5,32 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from smtplib import SMTP
 
-from utilities import generate_attachment_naming_convention, logger
+from utilities import format_attachment_name, logger
 
 ##########
 
 
-def generate_email_body(addressee_first_name: str, client_name: str, days_back: int) -> str:
+def generate_email_body(
+    addressee_first_name: str, client_name: str, days_back: int
+) -> str:
+    """
+    Generates the HTML body for the email.
+
+    Args:
+        addressee_first_name (str): First name of the email recipient.
+        client_name (str): Name of the client.
+        days_back (int): Number of days back the report covers.
+
+    Returns:
+        str: The HTML body of the email.
+    """
+
     body = f"""
     Hi {addressee_first_name},
     <br><br>
-    I hope you're well! Please see attached for my {client_name} hours from the last {days_back} days.
+    I hope you're well! 
+    <br><br>
+    Please see attached for my <b>{client_name}</b> hours from the last {days_back} days.
     <br><br>
     If you have any questions or concerns please <a href='mailto:IAN@ianferguson.dev'>contact me at my monitored inbox</a>.
     <br><br>
@@ -54,7 +70,9 @@ def generate_multipart_message(
     # Message metadata
     msg["From"] = sender_email
     msg["To"] = addressee_email
-    msg["Subject"] = f"[AUTOMATED] Ferguson x {client_name} Hours - {datetime.now().strftime('%B %d, %Y')}"
+    msg["Subject"] = (
+        f"[AUTOMATED] Ferguson x {client_name} Hours - {datetime.now().strftime('%B %d, %Y')}"
+    )
 
     # Create and attach email body
     body_text = MIMEText(
@@ -90,7 +108,7 @@ def send_email(
     client_name: str,
 ) -> None:
     """
-    Formats and attaches CSV to the body of an outgoing email
+    Formats and attaches a zip file to the body of an outgoing email
     to the client address.
 
     Args:
@@ -105,7 +123,7 @@ def send_email(
     """
 
     # Save file locally
-    zip_file = generate_attachment_naming_convention(
+    zip_file = format_attachment_name(
         days_back=days_back, client_name=client_name, assets_directory=assets_directory
     )
 
@@ -127,10 +145,19 @@ def send_email(
         if os.environ.get("STAGE") != "production":
             addressee_email = os.environ.get("TEST_EMAIL_INBOX")
 
+            if not addressee_email:
+                raise ValueError(
+                    "TEST_EMAIL_INBOX environment variable must be set in non-production environments."
+                )
+
         logger.debug(f"Sending to {addressee_first_name} @ {addressee_email}...")
-        server.sendmail(
-            from_addr=from_address,
-            to_addrs=addressee_email,
-            msg=email_body.as_string(),
-        )
-        logger.debug("Successfully sent")
+        try:
+            server.sendmail(
+                from_addr=from_address,
+                to_addrs=addressee_email,
+                msg=email_body.as_string(),
+            )
+            logger.debug("Successfully sent")
+
+        except Exception as e:
+            logger.error(f"Failed to send email: {e}")
