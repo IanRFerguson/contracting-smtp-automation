@@ -5,12 +5,12 @@ import click
 from google.cloud import bigquery, storage
 
 from asset_helpers import build_attachments
-from config import CONSULTANT_MAP, GLOBAL_MAP
 from email_helpers import send_email
 from utilities import (
     get_contracting_hours,
     logger,
     write_assets_to_gcs,
+    get_data_for_environment,
 )
 
 #####
@@ -73,6 +73,12 @@ def main(days_back: int, from_address: str, bucket_name: str) -> None:
         raise ValueError(
             "GCS bucket name must be provided via --bucket-name or env var."
         )
+
+    CONSULTANT_MAP, GLOBAL_MAP = get_data_for_environment(
+        is_prod_run=os.environ.get("ENVIRONMENT") == "production",
+        storage_client=STORAGE_CLIENT,
+        bucket_name=bucket_name,
+    )
 
     for client_name in CONSULTANT_MAP.keys():
         logger.info(f"* Processing client: {client_name}")

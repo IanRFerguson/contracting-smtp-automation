@@ -1,13 +1,15 @@
 import os
+import json
 import shutil
 from datetime import datetime, timedelta
-from typing import Union
+from typing import Union, Tuple
 
 import pytz
 from google.cloud import bigquery, storage
 from pandas import DataFrame
 
 from color_logger import logger
+from config import CONSULTANT_MAP, GLOBAL_MAP
 
 #####
 
@@ -100,3 +102,36 @@ def write_assets_to_gcs(
         blob.upload_from_filename(local_path)
 
         logger.debug(f"*** Uploaded {local_path} to gs://{bucket_name}/{gcs_path}")
+
+
+def get_data_for_environment(
+    is_prod_run: bool,
+    storage_client: storage.Client,
+    bucket_name: str,
+    blob_name: str = "contracting_config.json",
+) -> Tuple[dict, dict]:
+    """
+    Returns the appropriate configuration dictionaries based on the environment.
+
+    Args:
+        is_prod_run (bool): Flag indicating if the run is for production.
+        storage_client (storage.Client): Initialized GCS storage client.
+        bucket_name (str): GCS bucket name to upload email assets to.
+        blob_name (str): Name of the blob containing the configuration (default: contracting_config.json).
+
+    Returns:
+        Tuple[dict, dict]: A tuple containing the configuration dictionaries.
+    """
+
+    if is_prod_run:
+        bucket = storage_client.bucket(bucket_name)
+        blob = bucket.blob(blob_name)
+        config_data = blob.download_as_text()
+
+        config_json = json.loads(config_data)
+        return config_json["clients"], config_json["globals"]
+
+    # If we're running locally, we'll use the dev config
+    # that isn't pushed to version control
+    else:
+        return CONSULTANT_MAP, GLOBAL_MAP
