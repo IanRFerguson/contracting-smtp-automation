@@ -3,6 +3,7 @@ import shutil
 from datetime import datetime, timedelta
 from typing import Union
 
+import pytz
 from google.cloud import bigquery, storage
 from pandas import DataFrame
 
@@ -30,7 +31,7 @@ def generate_attachment_naming_convention(
         str: Path to the created zip file.
     """
 
-    _today = datetime.now()
+    _today = datetime.now(pytz.timezone("America/New_York"))
     _preceding_boundary = _today - timedelta(days=days_back)
 
     _date_formatted = f"{_preceding_boundary.strftime('%Y-%m-%d')}__{_today.strftime('%Y-%m-%d')}"
@@ -81,7 +82,7 @@ def write_assets_to_gcs(
 
     bucket = storage_client.bucket(bucket_name)
     client_name = client_name.replace(" ", "_").lower().strip()
-    today = datetime.now().strftime("%Y-%m-%d")
+    today = datetime.now(pytz.timezone("America/New_York")).strftime("%Y-%m-%d")
 
     for filename in os.listdir(assets_directory):
         local_path = os.path.join(assets_directory, filename)
