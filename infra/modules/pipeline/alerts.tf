@@ -154,7 +154,7 @@ resource "google_monitoring_alert_policy" "job_success_alert" {
   notification_channels = [google_monitoring_notification_channel.email.id]
 
   alert_strategy {
-    auto_close = "300s" # 5 minutes
+    auto_close = "1800s" # 30 minutes
   }
 
   documentation {
