@@ -9,7 +9,9 @@ locals {
     "bigquery.jobUser",
     "storage.admin",
     "logging.admin",
-    "run.admin"
+    "run.admin",
+    "iam.serviceAccountUser",
+    "artifactregistry.repoAdmin",
   ]
   friday_at_11am = "0 11 * * 5"
   est_time_zone  = "America/New_York"
