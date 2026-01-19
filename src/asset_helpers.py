@@ -112,7 +112,7 @@ def build_attachments(df: DataFrame, days_back: int, **kwargs) -> str:
 
     os.makedirs(output_dir, exist_ok=True)
 
-    df.to_csv(f"{output_dir}/contracting_hours.csv")
+    df.to_csv(f"{output_dir}/contracting_hours.csv", index=False)
 
     # Build invoice PDF
     billing_period_start = (TODAY - timedelta(days=days_back)).strftime("%b %d, %Y").upper()
