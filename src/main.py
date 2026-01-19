@@ -70,9 +70,7 @@ def main(days_back: int, from_address: str, bucket_name: str) -> None:
     """
 
     if not bucket_name:
-        raise ValueError(
-            "GCS bucket name must be provided via --bucket-name or env var."
-        )
+        raise ValueError("GCS bucket name must be provided via --bucket-name or env var.")
 
     CONSULTANT_MAP, GLOBAL_MAP = get_data_for_environment(
         is_prod_run=os.environ.get("ENVIRONMENT") == "production",
@@ -112,9 +110,7 @@ def main(days_back: int, from_address: str, bucket_name: str) -> None:
             smtp_creds=SMTP_CREDS,
             days_back=days_back,
             from_address=from_address,
-            addressee_first_name=CONSULTANT_MAP[client_name]["contact_name"].split(" ")[
-                0
-            ],
+            addressee_first_name=CONSULTANT_MAP[client_name]["contact_name"].split(" ")[0],
             addressee_email=CONSULTANT_MAP[client_name]["contact_email"],
             client_name=client_name,
         )
