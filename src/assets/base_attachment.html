@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Invoice - {{ invoice_no }}</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="invoice-container">
+        <header>
+            <div class="company-info">
+                <h1>{{ company_name }}</h1>
+                <p>{{ address }}</p>
+                <p>{{ phone }}</p>
+                <p>{{ email }}</p>
+            </div>
+            <div class="invoice-title">
+                <h1>INVOICE</h1>
+            </div>
+        </header>
+
+        <hr>
+
+        <section class="metadata">
+            <div class="meta-column">
+                <p><strong>Invoice #:</strong> {{ invoice_no }}</p>
+                <p><strong>Invoice Date:</strong> {{ date }}</p>
+                <p><strong>Billing Period:</strong> {{ billing_period }}</p>
+                <p><strong>Due Date:</strong> {{ due_date }}</p>
+            </div>
+            <div class="meta-column">
+                <p><strong>Billed To:</strong></p>
+                <p>{{ client_name }}</p>
+            </div>
+        </section>
+
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th class="text-right">Rate</th>
+                    <th class="text-right">Qty.</th>
+                    <th class="text-right">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category, hours in items.items() %}
+                <tr>
+                    <td>{{ category }}</td>
+                    <td class="text-right">${{ "{:,.2f}".format(hourly_rate) }}</td>
+                    <td class="text-right">{{ hours }}</td>
+                    <td class="text-right">${{ "{:,.2f}".format(hours * hourly_rate) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="totals-container">
+            <table class="totals-table">
+                <tr class="total-row">
+                    <td><strong>Total</strong></td>
+                    <td><strong>${{ "{:,.2f}".format(total) }}</strong></td>
+                </tr>
+            </table>
+        </div>
+
+        <footer>
+            <p><strong>Mode of Payment:</strong> {{ payment_method }}</p>
+        </footer>
+    </div>
+</body>
+
+</html>
