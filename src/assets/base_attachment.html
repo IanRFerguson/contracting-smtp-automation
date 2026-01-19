@@ -46,27 +46,18 @@
                 </tr>
             </thead>
             <tbody>
-                {% for item in items %}
+                {% for category, hours in items.items() %}
                 <tr>
-                    <td>{{ item.description }}</td>
-                    <td class="text-right">${{ "{:,.2f}".format(item.rate) }}</td>
-                    <td class="text-right">{{ item.qty }}</td>
-                    <td class="text-right">${{ "{:,.2f}".format(item.amount) }}</td>
+                    <td>{{ category }}</td>
+                    <td class="text-right">${{ "{:,.2f}".format(hourly_rate) }}</td>
+                    <td class="text-right">{{ hours }}</td>
+                    <td class="text-right">${{ "{:,.2f}".format(hours * hourly_rate) }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
-
         <div class="totals-container">
             <table class="totals-table">
-                <tr>
-                    <td>Subtotal</td>
-                    <td>${{ "{:,.2f}".format(subtotal) }}</td>
-                </tr>
-                <tr>
-                    <td>Tax Rate (%)</td>
-                    <td>{{ tax_rate }}%</td>
-                </tr>
                 <tr class="total-row">
                     <td><strong>Total</strong></td>
                     <td><strong>${{ "{:,.2f}".format(total) }}</strong></td>

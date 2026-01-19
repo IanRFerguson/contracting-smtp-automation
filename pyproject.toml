@@ -8,6 +8,8 @@ dependencies = [
     "google-cloud-storage",
     "click==8.3.1",
     "colorlog",
+    "jinja2",
+    "weasyprint",
 ]
 
 [tool.ruff]

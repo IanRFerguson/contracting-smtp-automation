@@ -2,7 +2,6 @@ import os
 import shutil
 from datetime import datetime, timedelta
 from typing import Union
-from uuid import uuid4
 
 from google.cloud import bigquery, storage
 from pandas import DataFrame
@@ -62,31 +61,6 @@ def get_contracting_hours(table_name: str, bq: bigquery.Client, days_back: int) 
     logger.debug(resp)
 
     return DataFrame(resp, columns=["Period", "Day", "Hours", "Category", "Purpose", "Accomplished"])
-
-
-def build_attachments(df: DataFrame, **kwargs) -> str:
-    """
-    Given a Pandas DataFrame, build the email attachments and return
-    the directory where they are stored.
-
-    Args:
-        df (DataFrame): Pandas DataFrame containing contracting hours.
-
-    Returns:
-        str: Directory path where attachments are stored.
-    """
-
-    output_dir = f"{os.path.abspath(os.getcwd())}/temp_attachments_{uuid4().hex}"
-    logger.debug(f"Creating temporary directory at {output_dir}...")
-
-    os.makedirs(output_dir, exist_ok=True)
-
-    df.to_csv(f"{output_dir}/contracting_hours.csv")
-
-    with open(os.path.join(output_dir, "invoice.pdf"), "w") as f:
-        f.write("This is a placeholder for the invoice PDF.")
-
-    return output_dir
 
 
 def write_assets_to_gcs(

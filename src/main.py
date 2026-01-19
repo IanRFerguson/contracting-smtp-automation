@@ -4,10 +4,10 @@ from smtplib import SMTP
 import click
 from google.cloud import bigquery, storage
 
+from asset_helpers import build_attachments
 from config import CONSULTANT_MAP, GLOBAL_MAP
 from email_helpers import send_email
 from utilities import (
-    build_attachments,
     get_contracting_hours,
     logger,
     write_assets_to_gcs,
@@ -88,7 +88,12 @@ def main(days_back: int, from_address: str, bucket_name: str) -> None:
 
         # Create the email assets, including a CSV attachment and invoice
         logger.info("** Generating email assets")
-        assets_directory = build_attachments(df=hours_this_week, **GLOBAL_MAP, **CONSULTANT_MAP[client_name])
+        assets_directory = build_attachments(
+            df=hours_this_week,
+            days_back=days_back,
+            **GLOBAL_MAP,
+            **CONSULTANT_MAP[client_name],
+        )
 
         # Email our contact
         logger.info("** Sending email to client")
