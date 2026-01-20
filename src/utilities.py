@@ -60,7 +60,7 @@ def get_contracting_hours(table_name: str, bq: bigquery.Client, days_back: int) 
     resp = [row.values() for row in job.result()]
     logger.debug(resp)
 
-    return DataFrame(resp, columns=["Period", "Day", "Hours", "Category", "Accomplished"])
+    return DataFrame(resp, columns=["Period", "Day", "Hours", "Category", "Purpose", "Accomplished"])
 
 
 def write_assets_to_gcs(
