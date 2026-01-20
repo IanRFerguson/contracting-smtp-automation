@@ -5,7 +5,7 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from smtplib import SMTP
 
-from utilities import format_attachment_name, logger
+from utilities import application_logger, format_attachment_name
 
 ##########
 
@@ -142,14 +142,14 @@ def send_email(
             if not addressee_email:
                 raise ValueError("TEST_EMAIL_INBOX environment variable must be set in non-production environments.")
 
-        logger.debug(f"Sending to {addressee_first_name} @ {addressee_email}...")
+        application_logger.debug(f"Sending to {addressee_first_name} @ {addressee_email}...")
         try:
             server.sendmail(
                 from_addr=from_address,
                 to_addrs=addressee_email,
                 msg=email_body.as_string(),
             )
-            logger.debug("Successfully sent")
+            application_logger.debug("Successfully sent")
 
         except Exception as e:
-            logger.error(f"Failed to send email: {e}")
+            application_logger.error(f"Failed to send email: {e}")

@@ -8,7 +8,7 @@ import pytz
 from google.cloud import bigquery, storage
 from pandas import DataFrame
 
-from color_logger import logger
+from color_logger import application_logger
 
 #####
 
@@ -42,7 +42,7 @@ def format_attachment_name(days_back: int, client_name: str, assets_directory: s
     output_base = os.path.join(output_dir, base_filename)
 
     # Create the zip file (shutil.make_archive adds .zip automatically)
-    logger.debug(f"Creating zip archive at {output_base}{suffix}...")
+    application_logger.debug(f"Creating zip archive at {output_base}{suffix}...")
     shutil.make_archive(output_base, "zip", assets_directory)
 
     return f"{output_base}{suffix}"
@@ -55,10 +55,10 @@ def get_contracting_hours(table_name: str, bq: bigquery.Client, days_back: int) 
     of a Pandas DataFrame
     """
 
-    logger.debug(f"Reading hours from {table_name}...")
+    application_logger.debug(f"Reading hours from {table_name}...")
     job = bq.query(f"SELECT * FROM {table_name} WHERE DATE_DIFF(CURRENT_DATE(), CAST(Day as DATE), DAY) < {days_back}")
     resp = [row.values() for row in job.result()]
-    logger.debug(resp)
+    application_logger.debug(resp)
 
     return DataFrame(resp, columns=["Period", "Day", "Hours", "Category", "Purpose", "Accomplished"])
 
@@ -90,7 +90,7 @@ def write_assets_to_gcs(
         blob = bucket.blob(gcs_path)
         blob.upload_from_filename(local_path)
 
-        logger.debug(f"*** Uploaded {local_path} to gs://{bucket_name}/{gcs_path}")
+        application_logger.debug(f"*** Uploaded {local_path} to gs://{bucket_name}/{gcs_path}")
 
 
 def get_data_for_environment(

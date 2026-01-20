@@ -7,7 +7,7 @@ from jinja2 import Environment, FileSystemLoader
 from pandas import DataFrame
 from weasyprint import HTML
 
-from color_logger import logger
+from color_logger import application_logger
 
 #####
 
@@ -91,7 +91,7 @@ def templatize_html_to_pdf(
     # Convert to PDF
     HTML(string=html_content).write_pdf(output_path, stylesheets=[css_path])
 
-    logger.debug(f"Generated invoice PDF at {output_path}")
+    application_logger.debug(f"Generated invoice PDF at {output_path}")
 
     return output_path
 
@@ -112,7 +112,7 @@ def build_attachments(df: DataFrame, days_back: int, global_map: dict, client_ma
     """
 
     output_dir = f"{os.path.abspath(os.getcwd())}/temp_attachments_{uuid4().hex}"
-    logger.debug(f"Creating temporary directory at {output_dir}...")
+    application_logger.debug(f"Creating temporary directory at {output_dir}...")
 
     os.makedirs(output_dir, exist_ok=True)
 

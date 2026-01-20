@@ -7,9 +7,9 @@ from google.cloud import bigquery, storage
 from asset_helpers import build_attachments
 from email_helpers import send_email
 from utilities import (
+    application_logger,
     get_contracting_hours,
     get_data_for_environment,
-    logger,
     write_assets_to_gcs,
 )
 
@@ -79,7 +79,7 @@ def main(days_back: int, from_address: str, bucket_name: str) -> None:
     )
 
     for client_name in CONSULTANT_MAP.keys():
-        logger.info(f"* Processing client: {client_name}")
+        application_logger.info(f"* Processing client: {client_name}")
 
         # Query the database for contracting hours
         hours_this_week = get_contracting_hours(
@@ -90,11 +90,11 @@ def main(days_back: int, from_address: str, bucket_name: str) -> None:
 
         # If there are no hours, we can skip ahead
         if hours_this_week.empty:
-            logger.warning("* No contracting hours found for the specified period.")
+            application_logger.warning("* No contracting hours found for the specified period.")
             continue
 
         # Create the email assets, including a CSV attachment and invoice
-        logger.info("** Generating email assets")
+        application_logger.info("** Generating email assets")
         assets_directory = build_attachments(
             df=hours_this_week,
             days_back=days_back,
@@ -103,7 +103,7 @@ def main(days_back: int, from_address: str, bucket_name: str) -> None:
         )
 
         # Email our contact
-        logger.info("** Sending email to client")
+        application_logger.info("** Sending email to client")
         send_email(
             assets_directory=assets_directory,
             smtp=SMTP_CLIENT,
@@ -116,7 +116,7 @@ def main(days_back: int, from_address: str, bucket_name: str) -> None:
         )
 
         # Upload assets to GCS for record-keeping
-        logger.info("** Uploading assets to GCS")
+        application_logger.info("** Uploading assets to GCS")
         write_assets_to_gcs(
             assets_directory=assets_directory,
             client_name=client_name,

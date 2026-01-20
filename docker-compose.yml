@@ -8,6 +8,6 @@ services:
     environment:
       - GOOGLE_APPLICATION_CREDENTIALS=/app/service_accounts/ian-dev.json
       - DEBUG=false
-      - STAGE=production
+      - STAGE=dev
     volumes:
       - .:/app
