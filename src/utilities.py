@@ -48,7 +48,7 @@ def format_attachment_name(days_back: int, client_name: str, assets_directory: s
     return f"{output_base}{suffix}"
 
 
-def get_contracting_hours(table_name: str, bq: bigquery.Client, days_back: int) -> Union[DataFrame, None]:
+def get_contracting_hours(table_name: str, bq: bigquery.Client, days_back: int) -> DataFrame:
     """
     Reads in data from BigQuery and filters out to the last week.
     If there are no records in the last 7 days we'll return `None` instead

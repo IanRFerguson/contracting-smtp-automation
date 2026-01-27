@@ -57,9 +57,7 @@ def main(days_back: int, bucket_name: str) -> None:
     """
 
     if not bucket_name:
-        raise ValueError(
-            "GCS bucket name must be provided via --bucket-name or env var."
-        )
+        raise ValueError("GCS bucket name must be provided via --bucket-name or env var.")
 
     CONSULTANT_MAP, GLOBAL_MAP = get_data_for_environment(
         is_prod_run=os.environ.get("STAGE") == "production",
@@ -79,9 +77,7 @@ def main(days_back: int, bucket_name: str) -> None:
 
         # If there are no hours, we can skip ahead
         if hours_this_week.empty:
-            application_logger.warning(
-                "* No contracting hours found for the specified period."
-            )
+            application_logger.warning("* No contracting hours found for the specified period.")
             continue
 
         # Create the email assets, including a CSV attachment and invoice
@@ -99,9 +95,7 @@ def main(days_back: int, bucket_name: str) -> None:
             csv_path=csv_path,
             pdf_path=pdf_path,
             days_back=days_back,
-            addressee_first_name=CONSULTANT_MAP[client_name]["contact_name"].split(" ")[
-                0
-            ],
+            addressee_first_name=CONSULTANT_MAP[client_name]["contact_name"].split(" ")[0],
             addressee_email=CONSULTANT_MAP[client_name]["contact_email"],
             client_name=client_name,
         )

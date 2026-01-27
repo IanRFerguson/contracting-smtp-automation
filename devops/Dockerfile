@@ -4,7 +4,8 @@ WORKDIR /app
 
 # Copy only the dependency files to leverage Docker cache
 COPY pyproject.toml .
-RUN pip install uv && uv sync
+COPY uv.lock .
+RUN pip install uv==0.9.26 && uv sync --frozen
 
 # Copy the rest of the application code
 COPY src/ /app/src

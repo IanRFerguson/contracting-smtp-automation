@@ -8,9 +8,7 @@ from utilities import application_logger
 ##########
 
 
-def generate_email_body(
-    addressee_first_name: str, client_name: str, days_back: int
-) -> str:
+def generate_email_body(addressee_first_name: str, client_name: str, days_back: int) -> str:
     """
     Generates the HTML body for the email.
 
@@ -66,17 +64,17 @@ def send_email_with_resend(
         days_back=days_back,
     )
 
-    csv_file: bytes = open(csv_path, "rb").read()
-    csv_attachment: resend.Attachment = {
-        "content": list(csv_file),
-        "filename": "hours.csv",
-    }
+    with open(csv_path, "rb") as _csv_bytes:
+        csv_attachment: resend.Attachment = {
+            "content": list(_csv_bytes.read()),
+            "filename": "hours.csv",
+        }
 
-    invoice_file: bytes = open(pdf_path, "rb").read()
-    invoice_attachment: resend.Attachment = {
-        "content": list(invoice_file),
-        "filename": "invoice.pdf",
-    }
+    with open(pdf_path, "rb") as _pdf_bytes:
+        invoice_attachment: resend.Attachment = {
+            "content": list(_pdf_bytes.read()),
+            "filename": "invoice.pdf",
+        }
 
     params: resend.Emails.SendParams = {
         "from": "Ian Ferguson Billing <no-reply@ianferguson.dev>",
@@ -86,4 +84,8 @@ def send_email_with_resend(
         "attachments": [csv_attachment, invoice_attachment],
     }
 
-    resend.Emails.send(params=params)
+    try:
+        resend.Emails.send(params=params)
+    except Exception as e:
+        application_logger.error(f"Error sending email to {addressee_email}: {e}")
+        raise e

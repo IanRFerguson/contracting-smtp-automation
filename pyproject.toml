@@ -18,9 +18,8 @@ dependencies = [
 line-length = 120
 indent-width = 4
 
-# Assume Python 3.7
-target-version = "py37"
-exclude = ["app/scheduled_tasks/pick_back_up.py"]
+# Assume Python 3.12
+target-version = "py312"
 
 
 [tool.ruff.lint]
