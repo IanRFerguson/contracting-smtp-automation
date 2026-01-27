@@ -62,7 +62,7 @@ def get_contracting_hours(table_name: str, bq: bigquery.Client, days_back: int) 
             * 
         FROM {table_name} 
         WHERE DATE_DIFF(CURRENT_DATE(), CAST(Day as DATE), DAY) < {days_back}
-        ORDER BY Day DESC
+        ORDER BY Day
         """
     )
     resp = [row.values() for row in job.result()]
