@@ -1,11 +1,10 @@
 import os
-from smtplib import SMTP
 
 import click
 from google.cloud import bigquery, storage
 
 from asset_helpers import build_attachments
-from email_helpers import send_email
+from email_helpers import send_email_with_resend
 from utilities import (
     application_logger,
     get_contracting_hours,
@@ -26,11 +25,6 @@ BIGQUERY_CLIENT = bigquery.Client(
     }
 )
 STORAGE_CLIENT = storage.Client()
-SMTP_CLIENT = SMTP(host="smtp.gmail.com", port=587)
-SMTP_CREDS = {
-    "user": os.environ["SMTP_USERNAME"],
-    "password": os.environ["SMTP_PASSWORD"],
-}
 
 
 @click.command()
@@ -41,18 +35,12 @@ SMTP_CREDS = {
     type=int,
 )
 @click.option(
-    "--from-address",
-    default="noreply@ianferguson.dev",
-    help="From address for outgoing emails.",
-    type=str,
-)
-@click.option(
     "--bucket-name",
     default=os.environ.get("GCS_BUCKET_NAME"),
     help="GCS bucket name to upload email assets to.",
     type=str,
 )
-def main(days_back: int, from_address: str, bucket_name: str) -> None:
+def main(days_back: int, bucket_name: str) -> None:
     """
     Entrypoint for the contracting hours email automation.
 
@@ -65,12 +53,13 @@ def main(days_back: int, from_address: str, bucket_name: str) -> None:
 
     Args:
         days_back (int): Number of days back to query for contracting hours.
-        from_address (str): From address for outgoing emails.
         bucket_name (str): GCS bucket name to upload email assets to.
     """
 
     if not bucket_name:
-        raise ValueError("GCS bucket name must be provided via --bucket-name or env var.")
+        raise ValueError(
+            "GCS bucket name must be provided via --bucket-name or env var."
+        )
 
     CONSULTANT_MAP, GLOBAL_MAP = get_data_for_environment(
         is_prod_run=os.environ.get("STAGE") == "production",
@@ -90,12 +79,14 @@ def main(days_back: int, from_address: str, bucket_name: str) -> None:
 
         # If there are no hours, we can skip ahead
         if hours_this_week.empty:
-            application_logger.warning("* No contracting hours found for the specified period.")
+            application_logger.warning(
+                "* No contracting hours found for the specified period."
+            )
             continue
 
         # Create the email assets, including a CSV attachment and invoice
         application_logger.info("** Generating email assets")
-        assets_directory = build_attachments(
+        csv_path, pdf_path = build_attachments(
             df=hours_this_week,
             days_back=days_back,
             global_map=GLOBAL_MAP,
@@ -104,13 +95,13 @@ def main(days_back: int, from_address: str, bucket_name: str) -> None:
 
         # Email our contact
         application_logger.info("** Sending email to client")
-        send_email(
-            assets_directory=assets_directory,
-            smtp=SMTP_CLIENT,
-            smtp_creds=SMTP_CREDS,
+        send_email_with_resend(
+            csv_path=csv_path,
+            pdf_path=pdf_path,
             days_back=days_back,
-            from_address=from_address,
-            addressee_first_name=CONSULTANT_MAP[client_name]["contact_name"].split(" ")[0],
+            addressee_first_name=CONSULTANT_MAP[client_name]["contact_name"].split(" ")[
+                0
+            ],
             addressee_email=CONSULTANT_MAP[client_name]["contact_email"],
             client_name=client_name,
         )
@@ -118,7 +109,8 @@ def main(days_back: int, from_address: str, bucket_name: str) -> None:
         # Upload assets to GCS for record-keeping
         application_logger.info("** Uploading assets to GCS")
         write_assets_to_gcs(
-            assets_directory=assets_directory,
+            csv_path=csv_path,
+            pdf_path=pdf_path,
             client_name=client_name,
             storage_client=STORAGE_CLIENT,
             bucket_name=bucket_name,
