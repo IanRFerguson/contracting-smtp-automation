@@ -1,6 +1,7 @@
 [project]
 name = "contracting-smtp-automation"
 version = "1.0"
+requires-python = "==3.12.*"
 dependencies = [
     "pandas==2.2.3",
     "google-cloud-bigquery==3.19.0",
@@ -10,15 +11,15 @@ dependencies = [
     "colorlog==6.10.1",
     "jinja2==3.1.6",
     "weasyprint==67.0",
+    "resend==2.21.0",
 ]
 
 [tool.ruff]
 line-length = 120
 indent-width = 4
 
-# Assume Python 3.7
-target-version = "py37"
-exclude = ["app/scheduled_tasks/pick_back_up.py"]
+# Assume Python 3.12
+target-version = "py312"
 
 
 [tool.ruff.lint]

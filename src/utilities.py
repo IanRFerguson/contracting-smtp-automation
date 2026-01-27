@@ -48,7 +48,7 @@ def format_attachment_name(days_back: int, client_name: str, assets_directory: s
     return f"{output_base}{suffix}"
 
 
-def get_contracting_hours(table_name: str, bq: bigquery.Client, days_back: int) -> Union[DataFrame, None]:
+def get_contracting_hours(table_name: str, bq: bigquery.Client, days_back: int) -> DataFrame:
     """
     Reads in data from BigQuery and filters out to the last week.
     If there are no records in the last 7 days we'll return `None` instead
@@ -56,15 +56,29 @@ def get_contracting_hours(table_name: str, bq: bigquery.Client, days_back: int) 
     """
 
     application_logger.debug(f"Reading hours from {table_name}...")
-    job = bq.query(f"SELECT * FROM {table_name} WHERE DATE_DIFF(CURRENT_DATE(), CAST(Day as DATE), DAY) < {days_back}")
+    job = bq.query(
+        f"""
+        SELECT 
+            * 
+        FROM {table_name} 
+        WHERE DATE_DIFF(CURRENT_DATE(), CAST(Day as DATE), DAY) < {days_back}
+        ORDER BY Day
+        """
+    )
     resp = [row.values() for row in job.result()]
     application_logger.debug(resp)
 
-    return DataFrame(resp, columns=["Period", "Day", "Hours", "Category", "Purpose", "Accomplished"])
+    if os.environ.get("STAGE") != "production":
+        columns = ["Period", "Day", "Hours", "Category", "Accomplished"]
+    else:
+        columns = ["Period", "Day", "Hours", "Category", "Purpose", "Accomplished"]
+
+    return DataFrame(resp, columns=columns)
 
 
 def write_assets_to_gcs(
-    assets_directory: str,
+    csv_path: str,
+    pdf_path: str,
     client_name: str,
     storage_client: storage.Client,
     bucket_name: str,
@@ -73,7 +87,8 @@ def write_assets_to_gcs(
     Persists the email assets to a GCS bucket for record-keeping.
 
     Args:
-        assets_directory (str): Local directory where email assets are stored.
+        csv_path (str): Path to the CSV attachment.
+        pdf_path (str): Path to the PDF attachment.
         client_name (str): Name of the client for whom the assets are generated.
         storage_client (storage.Client): Initialized GCS storage client.
         bucket_name (str): GCS bucket name to upload email assets to.
@@ -83,8 +98,8 @@ def write_assets_to_gcs(
     client_name = client_name.replace(" ", "_").lower().strip()
     today = datetime.now(pytz.timezone("America/New_York")).strftime("%Y-%m-%d")
 
-    for filename in os.listdir(assets_directory):
-        local_path = os.path.join(assets_directory, filename)
+    for filename in [os.path.basename(csv_path), os.path.basename(pdf_path)]:
+        local_path = os.path.join(os.path.dirname(csv_path), filename)
         gcs_path = f"{client_name}/{today}/{filename}"
 
         blob = bucket.blob(gcs_path)

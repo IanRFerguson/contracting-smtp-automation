@@ -1,11 +1,9 @@
-import os
 from datetime import datetime
-from email.mime.application import MIMEApplication
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from smtplib import SMTP
 
-from utilities import application_logger, format_attachment_name
+import pytz
+import resend
+
+from utilities import application_logger
 
 ##########
 
@@ -40,116 +38,54 @@ def generate_email_body(addressee_first_name: str, client_name: str, days_back: 
     return body
 
 
-def generate_multipart_message(
-    sender_email: str,
-    addressee_first_name: str,
-    addressee_email: str,
+def send_email_with_resend(
+    pdf_path: str,
+    csv_path: str,
     days_back: int,
-    client_name: str,
-    attachment_filename: str,
-) -> MIMEMultipart:
-    """
-    Generates a multipart email message with an attachment.
-
-    Args:
-        sender_email (str): Email address of the sender.
-        addressee_first_name (str): First name of the email recipient.
-        addressee_email (str): Email address of the recipient.
-        days_back (int): Number of days back the report covers.
-        client_name (str): Name of the client.
-        attachment_filename (str): Path to the attachment file.
-
-    Returns:
-        MIMEMultipart: The constructed email message with attachment.
-    """
-
-    msg = MIMEMultipart("mixed")
-
-    # Message metadata
-    msg["From"] = sender_email
-    msg["To"] = addressee_email
-    msg["Subject"] = f"[AUTOMATED] Ferguson x {client_name} Hours - {datetime.now().strftime('%B %d, %Y')}"
-
-    # Create and attach email body
-    body_text = MIMEText(
-        generate_email_body(
-            addressee_first_name=addressee_first_name,
-            client_name=client_name,
-            days_back=days_back,
-        ),
-        "html",
-    )
-    msg.attach(body_text)
-
-    # Read and attach CSV file
-    with open(attachment_filename, "rb") as _fp:
-        base_name = os.path.basename(attachment_filename)
-
-        attachment = MIMEApplication(_fp.read(), Name=base_name)
-        attachment["Content-Disposition"] = f'attachment; filename="{base_name}"'
-
-        msg.attach(attachment)
-
-    return msg
-
-
-def send_email(
-    assets_directory: str,
-    smtp: SMTP,
-    smtp_creds: dict,
-    days_back: int,
-    from_address: str,
     addressee_first_name: str,
     addressee_email: str,
     client_name: str,
 ) -> None:
     """
-    Formats and attaches a zip file to the body of an outgoing email
-    to the client address.
+    Sends an email with attachments using the Resend service.
 
     Args:
-        assets_directory (str): Directory containing the email assets.
-        smtp (SMTP): SMTP client instance.
-        smtp_creds (dict): SMTP credentials dictionary with 'user' and 'password' keys.
+        pdf_path (str): Path to the PDF invoice file.
+        csv_path (str): Path to the CSV hours file.
         days_back (int): Number of days back the report covers.
-        from_address (str): From address for outgoing emails.
         addressee_first_name (str): First name of the email recipient.
         addressee_email (str): Email address of the recipient.
         client_name (str): Name of the client.
     """
 
-    # Save file locally
-    zip_file = format_attachment_name(days_back=days_back, client_name=client_name, assets_directory=assets_directory)
-
-    email_body = generate_multipart_message(
-        sender_email=smtp_creds["user"],
+    html_body = generate_email_body(
         addressee_first_name=addressee_first_name,
-        addressee_email=addressee_email,
-        days_back=days_back,
         client_name=client_name,
-        attachment_filename=zip_file,
+        days_back=days_back,
     )
 
-    # Send message
-    with smtp as server:
-        server.ehlo()
-        server.starttls()
-        server.login(**smtp_creds)
+    with open(csv_path, "rb") as _csv_bytes:
+        csv_attachment: resend.Attachment = {
+            "content": list(_csv_bytes.read()),
+            "filename": "hours.csv",
+        }
 
-        if os.environ.get("STAGE") != "production":
-            addressee_email = os.environ.get("TEST_EMAIL_INBOX")
+    with open(pdf_path, "rb") as _pdf_bytes:
+        invoice_attachment: resend.Attachment = {
+            "content": list(_pdf_bytes.read()),
+            "filename": "invoice.pdf",
+        }
 
-            if not addressee_email:
-                raise ValueError("TEST_EMAIL_INBOX environment variable must be set in non-production environments.")
+    params: resend.Emails.SendParams = {
+        "from": "Ian Ferguson Billing <no-reply@ianferguson.dev>",
+        "to": [addressee_email],
+        "subject": f"[AUTOMATED] Ferguson x {client_name} Hours - {datetime.now(tz=pytz.timezone('America/New_York')).strftime('%B %d, %Y')}",
+        "html": html_body,
+        "attachments": [csv_attachment, invoice_attachment],
+    }
 
-        application_logger.debug(f"Sending to {addressee_first_name} @ {addressee_email}...")
-        try:
-            server.sendmail(
-                from_addr=from_address,
-                to_addrs=addressee_email,
-                msg=email_body.as_string(),
-            )
-            application_logger.debug("Successfully sent")
-
-        except Exception as e:
-            application_logger.error(f"Failed to send email: {e}")
+    try:
+        resend.Emails.send(params=params)
+    except Exception as e:
+        application_logger.error(f"Error sending email to {addressee_email}: {e}")
+        raise e

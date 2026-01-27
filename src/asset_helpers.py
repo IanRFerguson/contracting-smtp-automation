@@ -1,5 +1,6 @@
 import os
 from datetime import datetime, timedelta
+from typing import Tuple
 from uuid import uuid4
 
 import pytz
@@ -96,7 +97,7 @@ def templatize_html_to_pdf(
     return output_path
 
 
-def build_attachments(df: DataFrame, days_back: int, global_map: dict, client_map: dict) -> str:
+def build_attachments(df: DataFrame, days_back: int, global_map: dict, client_map: dict) -> Tuple[str, str]:
     """
     Given a Pandas DataFrame, build the email attachments and return
     the directory where they are stored.
@@ -108,7 +109,7 @@ def build_attachments(df: DataFrame, days_back: int, global_map: dict, client_ma
         client_map (dict): Client-specific configuration map with client details.
 
     Returns:
-        str: Directory path where attachments are stored.
+        Tuple[str, str]: Paths to the CSV and PDF attachments.
     """
 
     output_dir = f"{os.path.abspath(os.getcwd())}/temp_attachments_{uuid4().hex}"
@@ -116,13 +117,17 @@ def build_attachments(df: DataFrame, days_back: int, global_map: dict, client_ma
 
     os.makedirs(output_dir, exist_ok=True)
 
-    df.to_csv(f"{output_dir}/contracting_hours.csv", index=False)
+    csv_path = f"{output_dir}/contracting_hours.csv"
+    application_logger.debug(f"Writing contracting hours CSV to {csv_path}...")
+    df.to_csv(csv_path, index=False)
 
     # Build invoice PDF
     billing_period_start = (TODAY - timedelta(days=days_back)).strftime("%b %d, %Y").upper()
     billing_period_end = TODAY.strftime("%b %d, %Y").upper()
+    invoice_path = f"{output_dir}/invoice.pdf"
+    application_logger.debug(f"Writing invoice PDF to {invoice_path}...")
     templatize_html_to_pdf(
-        output_path=f"{output_dir}/invoice.pdf",
+        output_path=invoice_path,
         invoice_no=f"INV-{TODAY.strftime('%Y%m%d')}-{uuid4().hex[:6].upper()}",
         client_name=client_map["billed_to"],
         billing_period=f"{billing_period_start} to {billing_period_end}",
@@ -132,4 +137,4 @@ def build_attachments(df: DataFrame, days_back: int, global_map: dict, client_ma
         global_map=global_map,
     )
 
-    return output_dir
+    return csv_path, invoice_path
