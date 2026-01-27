@@ -63,8 +63,7 @@ module "email_pipeline" {
   job_name              = "contracting-email-job-v2"
   cron_schedule         = local.friday_at_11am // Every Friday at 11 AM
   gcs_bucket_name       = google_storage_bucket.email_assets_bucket.name
-  smtp_username         = var.smtp_username
-  smtp_password         = var.smtp_password
+  resend_api_key        = var.resend_api_key
   image_name            = var.image_name
   service_account_email = google_service_account.automation_sa.email
   time_zone             = local.est_time_zone

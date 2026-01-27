@@ -8,9 +8,7 @@ resource "google_cloud_run_v2_job" "email_job" {
       service_account = var.service_account_email
 
       containers {
-        image   = var.image_name
-        command = ["python"]
-        args    = ["src/main.py"]
+        image = var.image_name
 
         // Environment variables for the job
         env {
@@ -19,13 +17,8 @@ resource "google_cloud_run_v2_job" "email_job" {
         }
 
         env {
-          name  = "SMTP_USERNAME"
-          value = var.smtp_username
-        }
-
-        env {
-          name  = "SMTP_PASSWORD"
-          value = var.smtp_password
+          name  = "RESEND_API_KEY"
+          value = var.resend_api_key
         }
 
         env {

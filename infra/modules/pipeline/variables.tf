@@ -25,13 +25,8 @@ variable "stage" {
   default     = "production"
 }
 
-variable "smtp_username" {
-  description = "SMTP username for sending emails"
-  type        = string
-}
-
-variable "smtp_password" {
-  description = "SMTP password for sending emails"
+variable "resend_api_key" {
+  description = "API key for Resend email service"
   type        = string
   sensitive   = true
 }

@@ -8,15 +8,9 @@ variable "bucket_name" {
   type        = string
 }
 
-variable "smtp_username" {
-  description = "SMTP username for sending emails"
+variable "resend_api_key" {
+  description = "API key for Resend email service"
   type        = string
-}
-
-variable "smtp_password" {
-  description = "SMTP password for sending emails"
-  type        = string
-  sensitive   = true
 }
 
 variable "image_name" {
